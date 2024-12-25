@@ -38,10 +38,10 @@ namespace JetNet
 			return OrigString.Substring(start, end - start - 1);
 		}
 
-		public JsonArray ProcessJson()
+		public JsonParseResult ProcessJson()
 		{
-			JsonArray ret = new JsonArray();
-			while (TryPopChar(out char c))
+			JsonParseResult ret = new JsonParseResult();
+			while (TryPopChar(out char c, true))
 			{
 				// characters outside of the json universe that don't start an array or object AFTER whitespace are ignored
 				char oldC = NextIndex > 1 ? OrigString[NextIndex - 1] : ' '; // just used for whitespace detection
@@ -62,12 +62,15 @@ namespace JetNet
 			return ret;
 		}
 
-		private bool TryPopChar(out char c)
+		private bool TryPopChar(out char c, bool consumeWhitespace)
 		{
 			c = '\0';
-			if (NextIndex >= OrigString.Length) return false;
-			c = OrigString[NextIndex];
-			NextIndex++;
+			do
+			{
+				if (NextIndex >= OrigString.Length) return false;
+				c = OrigString[NextIndex];
+				NextIndex++;
+			} while (consumeWhitespace && char.IsWhiteSpace(c));
 			return true;
 		}
 		private void Rewind(int count = 1)
@@ -77,7 +80,7 @@ namespace JetNet
 
 		private void ProcessJsonArray(JsonArray current, bool isTopLevel)
 		{
-			while (TryPopChar(out char c))
+			while (TryPopChar(out char c, true))
 			{
 				if (char.IsWhiteSpace(c) || c == ',')
 				{
@@ -119,9 +122,9 @@ namespace JetNet
 
 		private void ProcessJsonObject(JsonObject current, bool isTopLevel)
 		{
-			JsonAttribute? currentAttr = null;
+			JsonProperty? currentAttr = null;
 
-			while (TryPopChar(out char c))
+			while (TryPopChar(out char c, true))
 			{
 				if (c == '}')
 				{
@@ -134,7 +137,7 @@ namespace JetNet
 					if (c == '"' || c == '\'' || c == '`')
 					{
 						string attrName = ParseString(c);
-						currentAttr = new JsonAttribute(attrName);
+						currentAttr = new JsonProperty(attrName);
 						current.Add(currentAttr);
 					}
 					else if (char.IsWhiteSpace(c) || c == ',') // ignore commas as well)
@@ -144,7 +147,8 @@ namespace JetNet
 					else
 						throw new JetException($"Unknown char '{c}' found within object at index {NextIndex - 1}");
 				}
-				else
+				else if (c == ':') {} // ignore name/value separator
+				else 
 				{
 					// ok, this set is different..
 					if (c == '"' || c == '\'' || c == '`')
@@ -167,7 +171,7 @@ namespace JetNet
 		{
 			bool isEscaping = false;
 			StringBuilder sb = new StringBuilder();
-			while (TryPopChar(out char c))
+			while (TryPopChar(out char c, false))
 			{
 				if (c == '\\')
 					isEscaping = true;
@@ -185,26 +189,28 @@ namespace JetNet
 		{
 			bool isEscaping = false;
 			StringBuilder sb = new StringBuilder();
-			while (TryPopChar(out char c))
+			while (TryPopChar(out char c, false))
 			{
 				if (c == '\\')
 					isEscaping = true;
 				else if (isEscaping)
 					sb.Append(c);
-				else if (c == ':' || c == ',') {
+				else if (c == ':' || c == ',')
+				{
 					Rewind(); // "put the : back!"
 					break;
-				} else
+				}
+				else
 					sb.Append(c);
 			}
 			return sb.ToString();
 		}
 
-		private void ProcessJsonValueString(JsonAttribute current, char endingQuoteChar)
+		private void ProcessJsonValueString(JsonProperty current, char endingQuoteChar)
 		{
 			bool isEscaping = false;
 			StringBuilder sb = new StringBuilder();
-			while (TryPopChar(out char c))
+			while (TryPopChar(out char c, false))
 			{
 				if (c == '\\')
 					isEscaping = true;
@@ -218,14 +224,14 @@ namespace JetNet
 			current.Value = new JsonString(sb.ToString());
 		}
 
-		private void ProcessJsonValueArray(JsonAttribute parent)
+		private void ProcessJsonValueArray(JsonProperty parent)
 		{
 			JsonArray current = new JsonArray();
 			parent.Value = current;
 			ProcessJsonArray(current, false);
 		}
 
-		private void ProcessJsonValueObject(JsonAttribute parent)
+		private void ProcessJsonValueObject(JsonProperty parent)
 		{
 			JsonObject current = new JsonObject();
 			parent.Value = current;
