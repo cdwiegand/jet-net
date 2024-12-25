@@ -13,7 +13,7 @@ namespace JetNet
 
 		public override ValueTypes ValueType => ValueTypes.String;
 
-		public override string ToString() => Value == null ? "null" : JsonValue.EscapeJsonString(Value);
+		public override string ToString() => JsonValue.EscapeJsonString(Value, true);
 
 		public string? Value { get; set; }
 	}

@@ -16,7 +16,7 @@ namespace JetNet
         public override ValueTypes ValueType => ValueTypes.Property;
 
         public override string ToString() =>
-             "\"" + JsonValue.EscapeJsonString(Name) + "\": " + (Value == null ? "null" : Value.ToString());
+             JsonValue.EscapeJsonString(Name,false) + ": " + (Value == null ? "null" : Value.ToString());
 
         protected override JsonValue GetValue() => Value ?? throw new NullReferenceException("Value of property is null.");
     }

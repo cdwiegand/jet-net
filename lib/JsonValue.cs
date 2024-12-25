@@ -14,11 +14,21 @@ namespace JetNet
 
         public abstract ValueTypes ValueType { get; }
 
-        public static string EscapeJsonString(string raw) =>
-            "\"" +
-            raw.Replace("\\", "\\\\")
-               .Replace("\"", "\\\"")
-            + "\"";
+        public static string EscapeJsonString(string? raw, bool allowRawValues)
+        {
+            if (allowRawValues)
+            {
+                if (raw == null) return "null";
+                if (raw == "true") return "true";
+                if (raw == "false") return "false";
+                if (decimal.TryParse(raw, out decimal dec)) return raw;
+            }
+            return 
+                "\"" +
+                raw.Replace("\\", "\\\\")
+                   .Replace("\"", "\\\"")
+                + "\"";
+        }
 
         public override abstract string ToString();
 
