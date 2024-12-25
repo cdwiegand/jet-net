@@ -38,7 +38,12 @@ public class UnitTest1
 
         Assert.IsNotNull(result);
         Assert.AreEqual(CorrectRootArrayJson, result.ToString());
-        TestHelper_Array(result);
+
+        Assert.AreEqual(1, result.Count); // one array at root
+        JsonArray jarr = result.First().AsArray();
+        Assert.IsNotNull(jarr);
+
+        TestHelper_Array(jarr);
     }
 
     [TestMethod]
@@ -49,14 +54,12 @@ public class UnitTest1
 
         Assert.IsNotNull(result);
         Assert.AreEqual(CorrectRootArrayJson, result.ToString());
+
         TestHelper_Array(result);
     }
 
-    private void TestHelper_Array(JsonParseResult result) {
-
-        Assert.AreEqual(1, result.Count); // one array at root
-        JsonArray jarr = result.First().AsArray();
-        Assert.IsNotNull(jarr);
+    private void TestHelper_Array(IList<JsonValue> jarr)
+    {
         Assert.AreEqual(2, jarr.Count);
 
         JsonObject topLevelJo = jarr[0]!.AsObject();

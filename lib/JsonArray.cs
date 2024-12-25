@@ -5,7 +5,7 @@ using System.Diagnostics.Contracts;
 namespace JetNet
 {
     // the only real difference between a json array and a json object is the object has named children and the array has indexed children
-    public class JsonArray : JsonValue, IEnumerable<JsonValue>, ICollection<JsonValue>, IEnumerable
+    public class JsonArray : JsonValue, IList<JsonValue>, IEnumerable<JsonValue>, ICollection<JsonValue>, IEnumerable
     {
         public override ValueTypes ValueType => ValueTypes.Array;
 
@@ -24,6 +24,8 @@ namespace JetNet
         }
 
         public void Add(JsonValue value) => Items.Add(value);
+
+        public void Insert(int index, JsonValue item) => Items.Insert(index, item);
 
         public IEnumerator<JsonValue> GetEnumerator() => Items.GetEnumerator();
 
