@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetNet", "lib/JetNet.csproj", "{893ECD41-3417-482B-B1CA-2362F52AD023}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JetCli", "cli/JetCli.csproj", "{893ECD41-3417-482B-B1CA-2362F52AD023}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetTests", "tests\JetTests.csproj", "{5046ED54-94F5-468F-B4F9-057CF532076B}"
+Project("{109D155B-ADEC-4196-9C05-B4DEDF9B50F5}") = "JetLib", "lib/JetLib.csproj", "{0CE350D0-8FB6-404D-85AE-79322005C39F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetTests", "tests/JetTests.csproj", "{5046ED54-94F5-468F-B4F9-057CF532076B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +19,10 @@ Global
 		{893ECD41-3417-482B-B1CA-2362F52AD023}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{893ECD41-3417-482B-B1CA-2362F52AD023}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{893ECD41-3417-482B-B1CA-2362F52AD023}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0CE350D0-8FB6-404D-85AE-79322005C39F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0CE350D0-8FB6-404D-85AE-79322005C39F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0CE350D0-8FB6-404D-85AE-79322005C39F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0CE350D0-8FB6-404D-85AE-79322005C39F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5046ED54-94F5-468F-B4F9-057CF532076B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5046ED54-94F5-468F-B4F9-057CF532076B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5046ED54-94F5-468F-B4F9-057CF532076B}.Release|Any CPU.ActiveCfg = Release|Any CPU

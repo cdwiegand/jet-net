@@ -9,10 +9,25 @@ namespace JetNet
 
 		public List<JsonProperty> Items { get; set; } = new();
 
-		public override string ToString() => "{ " + string.Join(", ", Items.Select(p => p.ToString())) + " }";
+		public override string ToString() => ToString(JsonFormatOptions.Defaults);
+		public override string ToString(JsonFormatOptions format)
+		{
+			format ??= JsonFormatOptions.Defaults;
+			return format.FormatAfterDelimiter("{") +
+				string.Join(format.FormatAfterDelimiter(","), Items.Select(p => p.ToString(format))) +
+				format.FormatBeforeDelimiter("}");
+		}
 
-		public void Add(string name, JsonValue value) => Items.Add(new JsonProperty(name) { Value = value });
-
+		public void Add(string name, object value) => Add(new JsonProperty(name) { Value = JsonValue.Build(value) });
+		public void Add(string name, JsonValue value) => Add(new JsonProperty(name) { Value = value });
 		public void Add(JsonProperty attr) => Items.Add(attr);
+
+		public JsonObject AddMore(string name, object? value) => AddMore(name, JsonValue.Build(value));
+		public JsonObject AddMore(string name, JsonValue value) => AddMore(new JsonProperty(name) { Value = value });
+		public JsonObject AddMore(JsonProperty attr)
+		{
+			Add(attr);
+			return this;
+		}
 	}
 }

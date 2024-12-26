@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../lib/JetNet.csproj" />
+    <ProjectReference Include="../lib/JetLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
