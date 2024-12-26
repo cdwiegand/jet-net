@@ -7,7 +7,7 @@ namespace JetNet
             Value = value;
         }
 
-        public override ValueTypes ValueType => ValueTypes.String;
+        public override ValueTypes ValueType => ValueTypes.Primitive;
 
         public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public override string ToString(JsonFormatOptions format)

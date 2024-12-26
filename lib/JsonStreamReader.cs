@@ -46,7 +46,7 @@ namespace JetNet
                 else
                 {
                     char[] chars = new char[1];
-                    if (Stream.EndOfStream) return false;
+                    if (!Stream.BaseStream.CanRead || Stream.EndOfStream) return false;
                     Stream.Read(chars, 0, 1);
                     NextIndex++;
                     LastChar = c = chars[0];

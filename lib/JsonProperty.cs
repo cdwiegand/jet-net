@@ -10,7 +10,7 @@ namespace JetNet
         {
             Value = JsonValue.Build(value);
         }
-        public JsonProperty(string name, JsonValue value) : this(name)
+        public JsonProperty(string name, JsonValue? value) : this(name)
         {
             Value = value;
         }

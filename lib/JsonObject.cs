@@ -7,6 +7,17 @@ namespace JetNet
 
         public List<JsonProperty> Items { get; set; } = new();
 
+        public JsonValue? this[string key]
+        {
+            get => Items.FirstOrDefault(p => p.Name == key)?.Value;
+            set
+            {
+                var found = Items.FirstOrDefault(p => p.Name == key);
+                if (found == null) Items.Add(new JsonProperty(key, value));
+                else found.Value = value;
+            }
+        }
+
         public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public override string ToString(JsonFormatOptions format)
         {

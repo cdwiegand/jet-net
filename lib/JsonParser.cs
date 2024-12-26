@@ -46,20 +46,23 @@ namespace JetNet
                 {
                     JsonArray current = new JsonArray();
                     ret.Add(current);
-                    ProcessJsonArray(current, true); // runs until the array is done
+                    ProcessJsonArray(current);
+                    TopLevelHandlers?.ForEach(h => current.Items.ForEach(j => j.IfObject(k => h(k))));
+
                 }
                 else if (c == '{')
                 {
                     JsonObject current = new JsonObject();
                     ret.Add(current);
-                    ProcessJsonObject(current, true); // runs until the object is done
+                    ProcessJsonObject(current);
+                    TopLevelHandlers?.ForEach(h => h(current));
                 }
                 // else ignore it!
             }
             return ret;
         }
 
-        private void ProcessJsonArray(JsonArray current, bool isTopLevel)
+        private void ProcessJsonArray(JsonArray current)
         {
             while (StreamReader.TryPopChar(out char c, true))
             {
@@ -71,13 +74,13 @@ namespace JetNet
                 {
                     JsonObject childO = new JsonObject();
                     current.Add(childO);
-                    ProcessJsonObject(childO, isTopLevel); // if we are top-level array, then our objects are top-level objects (for handlers)
+                    ProcessJsonObject(childO);
                 }
                 else if (c == '[')
                 {
                     JsonArray childA = new JsonArray();
                     current.Add(childA);
-                    ProcessJsonArray(childA, false);
+                    ProcessJsonArray(childA);
                 }
                 else if (c == ']')
                 {
@@ -101,40 +104,34 @@ namespace JetNet
             }
         }
 
-        private void ProcessJsonObject(JsonObject current, bool isTopLevel)
+        private void ProcessJsonObject(JsonObject current)
         {
             JsonProperty? currentAttr = null;
 
             while (StreamReader.TryPopChar(out char c, true))
             {
-                if (c == '}')
+                if (c == '}') return;
+
+                if (currentAttr == null) // looking for a name (or end of our type)
                 {
-                    if (isTopLevel)
-                        TopLevelHandlers?.ForEach(h => h(current));
-                    return;
-                }
-                else if (currentAttr == null) // looking for a name (or end of our type)
-                {
-                    if (c == '"' || c == '\'' || c == '`')
+                    if (char.IsWhiteSpace(c) || c == ',') // ignore commas as well)
+                    {
+                        // ignore these
+                    }
+                    else if (c == '"' || c == '\'' || c == '`')
                     {
                         string attrName = ParseString(c);
                         currentAttr = new JsonProperty(attrName);
-                        current.Add(currentAttr);
-                    }
-                    else if (char.IsWhiteSpace(c) || c == ',') // ignore commas as well)
-                    {
-                        // ignore these
                     }
                     else if (char.IsLetterOrDigit(c))
                     {
                         StreamReader.Rewind();
                         string attrName = ParseUnquotedString();
                         currentAttr = new JsonProperty(attrName);
-                        current.Add(currentAttr);
                     }
                     else
                         throw new JetException($"Unknown char '{c}' found within object at index {StreamReader.CurrentIndex}");
-                    if (currentAttr?.Name == "success")
+                    if (currentAttr?.Name == "index")
                         Debugger.Break();
                 }
                 else if (c == ':')
@@ -159,9 +156,9 @@ namespace JetNet
                     else if (char.IsLetterOrDigit(c))
                     {
                         StreamReader.Rewind();
-                        string value = ParseUnquotedString();
-                        currentAttr.Value = new JsonStringValue(value);
+                        ProcessJsonValueRawString(currentAttr);
                     }
+                    current.Add(currentAttr);
                     currentAttr = null; // clear out
                 }
             }
@@ -224,18 +221,24 @@ namespace JetNet
             current.Value = new JsonStringValue(sb.ToString());
         }
 
+        private void ProcessJsonValueRawString(JsonProperty currentAttr)
+        {
+            string value = ParseUnquotedString();
+            currentAttr.Value = JsonValue.BuildStringOrPrimitive(value);
+        }
+
         private void ProcessJsonValueArray(JsonProperty parent)
         {
             JsonArray current = new JsonArray();
             parent.Value = current;
-            ProcessJsonArray(current, false);
+            ProcessJsonArray(current);
         }
 
         private void ProcessJsonValueObject(JsonProperty parent)
         {
             JsonObject current = new JsonObject();
             parent.Value = current;
-            ProcessJsonObject(current, false);
+            ProcessJsonObject(current);
         }
     }
 }
