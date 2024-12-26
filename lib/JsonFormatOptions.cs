@@ -4,7 +4,6 @@ namespace JetNet
     public class JsonFormatOptions : Exception
     {
         public bool AlwaysQuoteRawNonNullValues { get; set; }
-
         public bool AddSpacesAroundDelimiters { get; set; } // e.g. before and after [ ] { }   after (only) , :
 
         internal string FormatBeforeDelimiter(string value)

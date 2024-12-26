@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JetCli": {
+      "commandName": "Project",
+      "commandLineArgs": "../../../test.json"
+    }
+  }
+}

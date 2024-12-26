@@ -22,9 +22,9 @@ namespace JetNet
         public override string ToString(JsonFormatOptions format)
         {
             format ??= JsonFormatOptions.Defaults;
-            return format.FormatAfterDelimiter("{") +
-                string.Join(format.FormatAfterDelimiter(","), Items.Select(p => p.ToString(format))) +
-                format.FormatBeforeDelimiter("}");
+            return format.FormatAfterDelimiter("{")
+                + string.Join(format.FormatAfterDelimiter(","), Items.Select(p => p.ToString(format))) 
+                + format.FormatBeforeDelimiter("}");
         }
 
         public void Add(string name, object value) => Add(new JsonProperty(name) { Value = JsonValue.Build(value) });

@@ -21,9 +21,9 @@ namespace JetNet
         internal static string ToStringFromItems(IList<JsonValue> Items, JsonFormatOptions format)
         {
             format ??= JsonFormatOptions.Defaults;
-            return format.FormatAfterDelimiter("[") +
-                string.Join(format.FormatAfterDelimiter(","), Items.Select(p => p.ToString(format))) +
-                format.FormatBeforeDelimiter("]");
+            return format.FormatAfterDelimiter("[") 
+                + string.Join(format.FormatAfterDelimiter(","), Items.Select(p => p.ToString(format)))
+                + format.FormatBeforeDelimiter("]");
         }
 
         public int Count => Items.Count;
