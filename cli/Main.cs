@@ -3,6 +3,7 @@ using JetLib;
 namespace JetLib {
   public static class Program {
     public static void Main(string[] args) {
+		/*
 		JsonStreamReader streamReader = new JsonStreamReader("");
 		JsonParser p = new JsonParser("");
 		if (args.Length > 0) {
@@ -21,6 +22,7 @@ namespace JetLib {
 				}).GetAwaiter().GetResult();
 			}
 		}
+		*/
 	}
   }
 }
