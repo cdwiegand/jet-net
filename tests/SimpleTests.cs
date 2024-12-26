@@ -1,5 +1,5 @@
-using System.Text;
 using JetNet;
+using System.Text;
 
 namespace JetTests;
 

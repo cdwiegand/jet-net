@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Net.Http.Headers;
 
 namespace JetNet
 {
@@ -57,7 +55,8 @@ namespace JetNet
             ? ret
             : throw new InvalidCastException("Type is " + ValueType + ", expected JsonObject.");
 
-        public virtual JsonStringValue AsString() {
+        public virtual JsonStringValue AsString()
+        {
             var valType = GetValue().ValueType;
             if (valType == ValueTypes.Null && GetValue() is JsonNullValue retN) return new JsonStringValue(null);
             if (valType == ValueTypes.Primitive && GetValue() is JsonStringValue retP) return new JsonStringValue(retP.Value);

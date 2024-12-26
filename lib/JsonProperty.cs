@@ -1,5 +1,3 @@
-using System;
-
 namespace JetNet
 {
     public class JsonProperty : JsonValue
@@ -25,8 +23,8 @@ namespace JetNet
 
         public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public override string ToString(JsonFormatOptions format) =>
-             format.EscapeJsonString(Name, false) 
-             + format.FormatAfterDelimiter(":") 
+             format.EscapeJsonString(Name, false)
+             + format.FormatAfterDelimiter(":")
              + (Value ?? new JsonNullValue()).ToString(format);
 
         protected override JsonValue GetValue() => Value ?? throw new NullReferenceException("Value of property is null.");
