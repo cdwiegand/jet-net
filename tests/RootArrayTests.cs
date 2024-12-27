@@ -26,7 +26,7 @@ public class RootArrayTests
         Assert.AreEqual(CorrectRootArrayJson_QuoteRaw_DelimSpace, result.ToString(JsonFormatOptions.Defaults.SetAlwaysQuoteRawNonNullValues().SetAddSpacesAroundDelimiters()));
 
         Assert.AreEqual(1, result.Count); // one array at root
-        JsonArray jarr = result.First().AsArray();
+        JsonArray? jarr = result.First().AsArray();
         Assert.IsNotNull(jarr);
 
         TestHelper_Array(jarr);
@@ -52,7 +52,7 @@ public class RootArrayTests
     {
         Assert.AreEqual(2, jarr.Count);
 
-        JsonObject topLevelJo = jarr[0]!.AsObject();
+        JsonObject? topLevelJo = jarr[0]!.AsObject();
         Assert.IsNotNull(topLevelJo);
         Assert.AreEqual(1, topLevelJo.Items.Count);
         JsonProperty topLevelFirstChild = topLevelJo.Items[0] ?? throw new InvalidCastException();
@@ -81,12 +81,12 @@ public class RootArrayTests
         Assert.AreEqual("stay", topLevelFirstChild.Name);
         Assert.IsNotNull(topLevelFirstChild.Value);
         Assert.AreEqual(JsonValue.ValueTypes.Array, topLevelFirstChild.Value.ValueType);
-        JsonArray testMeArray = topLevelFirstChild.Value.AsArray();
+        JsonArray? testMeArray = topLevelFirstChild.Value.AsArray();
         Assert.IsNotNull(testMeArray);
         Assert.AreEqual(4, testMeArray.Count);
-        Assert.AreEqual("sunshine", testMeArray[0].AsString().Value);
-        Assert.AreEqual("clou7ds", testMeArray[1].AsString().Value);
-        Assert.AreEqual("the `east\" wind", testMeArray[2].AsString().Value);
-        Assert.AreEqual("water with spaces", testMeArray[3].AsString().Value);
+        Assert.AreEqual("sunshine", testMeArray[0]?.AsString()?.Value ?? "");
+        Assert.AreEqual("clou7ds", testMeArray[1]?.AsString()?.Value ?? "");
+        Assert.AreEqual("the `east\" wind", testMeArray[2]?.AsString()?.Value ?? "");
+        Assert.AreEqual("water with spaces", testMeArray[3]?.AsString()?.Value ?? "");
     }
 }
