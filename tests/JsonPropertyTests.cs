@@ -6,12 +6,6 @@ namespace JetTests;
 public class JsonPropertyTests
 {
     [TestMethod]
-    public void TestValueType()
-    {
-        Assert.AreEqual(JsonValue.ValueTypes.Property, new JsonProperty("").ValueType);
-    }
-
-    [TestMethod]
     public void TestToString()
     {
         JsonFormatOptions format1 = JsonFormatOptions.Defaults.SetAlwaysQuoteRawNonNullValues();

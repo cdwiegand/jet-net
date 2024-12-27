@@ -1,6 +1,6 @@
 namespace JetNet
 {
-    public class JsonProperty : JsonValue
+    public class JsonProperty
     {
         public JsonProperty(string name)
         {
@@ -19,14 +19,12 @@ namespace JetNet
 
         public JsonValue? Value { get; set; }
 
-        public override ValueTypes ValueType => ValueTypes.Property;
-
         public override string ToString() => ToString(JsonFormatOptions.Defaults);
-        public override string ToString(JsonFormatOptions format) =>
+        public string ToString(JsonFormatOptions format) =>
              format.EscapeJsonString(Name, false)
              + format.FormatAfterDelimiter(":")
              + (Value ?? new JsonNullValue()).ToString(format);
 
-        protected override JsonValue GetValue() => Value ?? throw new NullReferenceException("Value of property is null.");
+        protected JsonValue GetValue() => Value ?? throw new NullReferenceException("Value of property is null.");
     }
 }

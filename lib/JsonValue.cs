@@ -9,7 +9,6 @@ namespace JetNet
             Array,
             Object,
             String,
-            Property,
             Primitive,
             Null,
         }
