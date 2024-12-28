@@ -15,7 +15,7 @@ namespace JetNet
 
         public abstract ValueTypes ValueType { get; }
 
-        public override abstract string ToString();
+        public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public abstract string ToString(JsonFormatOptions format);
 
         protected virtual JsonValue GetValue() => this;
@@ -59,6 +59,7 @@ namespace JetNet
             var val = AsArray(false);
             if (val != null) action(val);
         }
+
         public JsonArray? AsArray(bool throwExceptionIfFail = true)
         {
             var val = GetValue();
@@ -67,11 +68,13 @@ namespace JetNet
                 throw new InvalidCastException("Type is " + val.ValueType + ", expected Array.");
             else return null;
         }
+
         public void IfObject(Action<JsonObject> action)
         {
             var val = AsObject(false);
             if (val != null) action(val);
         }
+
         public JsonObject? AsObject(bool throwExceptionIfFail = true)
         {
             var val = GetValue();

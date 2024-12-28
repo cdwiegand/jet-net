@@ -19,7 +19,6 @@ namespace JetNet
 
         public JsonValue? Value { get; set; }
 
-        public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public string ToString(JsonFormatOptions format) =>
              format.EscapeJsonString(Name, false)
              + format.FormatAfterDelimiter(":")

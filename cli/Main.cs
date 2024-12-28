@@ -11,14 +11,12 @@ namespace JetLib
                 foreach (string arg in args)
                     using (Stream s = System.IO.File.Open(arg, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
-                        var parser = new JsonParser(s);
-                        var results = parser.ProcessJson();
+                        var results = JsonParser.ProcessJson(s);
                         Console.WriteLine(results.ToString());
                     }
             else
             {
-                var parser = new JsonParser(Console.OpenStandardInput());
-                var results = parser.ProcessJson();
+                var results = JsonParser.ProcessJson(Console.OpenStandardInput());
                 Console.WriteLine(results.ToString());
             }
 

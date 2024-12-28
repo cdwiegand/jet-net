@@ -16,7 +16,6 @@ namespace JetNet
 
         public List<JsonValue> Items { get; set; } = new();
 
-        public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public override string ToString(JsonFormatOptions format) => ToStringFromItems(Items, format);
         internal static string ToStringFromItems(IList<JsonValue> Items, JsonFormatOptions format)
         {

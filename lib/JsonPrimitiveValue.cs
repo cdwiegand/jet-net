@@ -9,7 +9,6 @@ namespace JetNet
 
         public override ValueTypes ValueType => ValueTypes.Primitive;
 
-        public override string ToString() => ToString(JsonFormatOptions.Defaults);
         public override string ToString(JsonFormatOptions format)
         {
             if (Value == null) return format.EscapeJsonString(null, true);

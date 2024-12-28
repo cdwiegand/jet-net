@@ -15,8 +15,7 @@ public class RootArrayTests
     [TestMethod]
     public void TestRootArray()
     {
-        JsonParser p = new JsonParser(TestRootArrayJson);
-        JsonParseResult result = p.ProcessJson();
+        var result = JsonParser.ProcessJson(TestRootArrayJson);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(CorrectRootArrayJson_Defaults, result.ToString());
@@ -29,14 +28,13 @@ public class RootArrayTests
         JsonArray? jarr = result.First().AsArray();
         Assert.IsNotNull(jarr);
 
-        TestHelper_Array(jarr);
+        Helper_Array(jarr);
     }
 
     [TestMethod]
     public void TestRootMultipleObjects()
     {
-        JsonParser p = new JsonParser(TestRootMultipleObjectsJson);
-        JsonParseResult result = p.ProcessJson();
+        var result = JsonParser.ProcessJson(TestRootMultipleObjectsJson);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(CorrectRootArrayJson_Defaults, result.ToString());
@@ -45,10 +43,10 @@ public class RootArrayTests
         Assert.AreEqual(CorrectRootArrayJson_DelimSpace, result.ToString(JsonFormatOptions.Defaults.SetAddSpacesAroundDelimiters()));
         Assert.AreEqual(CorrectRootArrayJson_QuoteRaw_DelimSpace, result.ToString(JsonFormatOptions.Defaults.SetAlwaysQuoteRawNonNullValues().SetAddSpacesAroundDelimiters()));
 
-        TestHelper_Array(result);
+        Helper_Array(result);
     }
 
-    private void TestHelper_Array(IList<JsonValue> jarr)
+    private void Helper_Array(IList<JsonValue> jarr)
     {
         Assert.AreEqual(2, jarr.Count);
 

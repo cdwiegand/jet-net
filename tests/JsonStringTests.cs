@@ -12,6 +12,15 @@ public class JsonStringTests
     }
 
     [TestMethod]
+    public void TestEscapeJsonString() {
+        JsonFormatOptions opt = JsonFormatOptions.Defaults;
+        Assert.AreEqual("true",opt.EscapeJsonString("true",true));
+        Assert.AreEqual("\"true\"",opt.EscapeJsonString("true",false));
+        Assert.AreEqual("\"hello\"",opt.EscapeJsonString("hello",true));
+        Assert.AreEqual("\"he\\\"ll\\\"o\"",opt.EscapeJsonString("he\"ll\"o",true));
+    }
+
+    [TestMethod]
     public void TestToString()
     {
         Assert.AreEqual("\"hello\"", new JsonStringValue("hello").ToString());

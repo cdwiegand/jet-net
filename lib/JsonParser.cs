@@ -3,67 +3,48 @@ using System.Text;
 
 namespace JetNet
 {
-    public class JsonParser
+    public static class JsonParser
     {
-        public JsonParser(string json) : this(new JsonStringReader(json))
-        {
-        }
+        public static JsonParseResult ProcessJson(string json, Action<JsonObject>? topLevelHandler = null)
+            => ProcessJson(new JsonStringReader(json), topLevelHandler);
 
-        public JsonParser(Stream stream) : this(new JsonStreamReader(stream))
-        {
-        }
+        public static JsonParseResult ProcessJson(Stream stream, Action<JsonObject>? topLevelHandler = null)
+            => ProcessJson(new JsonStreamReader(stream), topLevelHandler);
 
-        public JsonParser(StreamReader stream) : this(new JsonStreamReaderReader(stream))
-        {
-        }
+        public static JsonParseResult ProcessJson(StreamReader stream, Action<JsonObject>? topLevelHandler = null)
+            => ProcessJson(new JsonStreamReaderReader(stream), topLevelHandler);
 
-        public JsonParser(StringReader stream) : this(new JsonStringReaderReader(stream))
-        {
-        }
+        public static JsonParseResult ProcessJson(StringReader stream, Action<JsonObject>? topLevelHandler = null)
+            => ProcessJson(new JsonStringReaderReader(stream), topLevelHandler);
 
-        public JsonParser(IJsonReader streamReader)
-        {
-            StreamReader = streamReader;
-        }
-
-        public readonly IJsonReader StreamReader;
-
-        public override string ToString() => StreamReader.Context;
-
-        private List<Action<JsonObject>> TopLevelHandlers = new();
-
-        public void AddHandler(Action<JsonObject> handler)
-        {
-            TopLevelHandlers.Add(handler);
-        }
-
-        public JsonParseResult ProcessJson()
+        public static JsonParseResult ProcessJson(IJsonReader StreamReader, Action<JsonObject>? topLevelHandler = null)
         {
             JsonParseResult ret = new JsonParseResult();
             while (StreamReader.TryPopChar(out char c, true))
             {
                 if (c == '[')
                 {
-                    JsonArray current = new JsonArray();
+                    JsonArray current = ProcessJsonArray(StreamReader);
                     ret.Add(current);
-                    ProcessJsonArray(current);
-                    TopLevelHandlers?.ForEach(h => current.Items.ForEach(j => j.IfObject(k => h(k))));
 
+                    foreach (var item in current.Items)
+                        item.IfObject(itemObj => topLevelHandler?.Invoke(itemObj));
                 }
                 else if (c == '{')
                 {
-                    JsonObject current = new JsonObject();
+                    JsonObject current = ProcessJsonObject(StreamReader);
                     ret.Add(current);
-                    ProcessJsonObject(current);
-                    TopLevelHandlers?.ForEach(h => h(current));
+
+                    topLevelHandler?.Invoke(current);
                 }
                 // else ignore it!
             }
             return ret;
         }
 
-        private void ProcessJsonArray(JsonArray current)
+        public static JsonArray ProcessJsonArray(IJsonReader StreamReader)
         {
+            JsonArray current = new();
             while (StreamReader.TryPopChar(out char c, true))
             {
                 if (char.IsWhiteSpace(c) || c == ',')
@@ -72,29 +53,25 @@ namespace JetNet
                 }
                 else if (c == '{')
                 {
-                    JsonObject childO = new JsonObject();
-                    current.Add(childO);
-                    ProcessJsonObject(childO);
+                    current.Add(ProcessJsonObject(StreamReader));
                 }
                 else if (c == '[')
                 {
-                    JsonArray childA = new JsonArray();
-                    current.Add(childA);
-                    ProcessJsonArray(childA);
+                    current.Add(ProcessJsonArray(StreamReader));
                 }
                 else if (c == ']')
                 {
-                    return;
+                    return current;
                 }
                 else if (c == '"' || c == '\'' || c == '`')
                 {
-                    string value = ParseString(c);
+                    string value = ReadQuotedString(StreamReader, c);
                     current.Add(new JsonStringValue(value));
                 }
                 else if (char.IsLetter(c)) // ok, letters mean a raw name... (sigh)
                 {
                     StreamReader.Rewind();
-                    string value = ParseUnquotedString();
+                    string value = ReadUnquotedString(StreamReader);
                     current.Add(new JsonStringValue(value));
                 }
                 else
@@ -102,15 +79,17 @@ namespace JetNet
                     throw new JetException($"Unknown char '{c}' found within array at index {StreamReader.CurrentIndex}");
                 }
             }
+            return current;
         }
 
-        private void ProcessJsonObject(JsonObject current)
+        public static JsonObject ProcessJsonObject(IJsonReader StreamReader)
         {
+            JsonObject current = new ();
             JsonProperty? currentAttr = null;
 
             while (StreamReader.TryPopChar(out char c, true))
             {
-                if (c == '}') return;
+                if (c == '}') return current;
 
                 if (currentAttr == null) // looking for a name (or end of our type)
                 {
@@ -120,13 +99,13 @@ namespace JetNet
                     }
                     else if (c == '"' || c == '\'' || c == '`')
                     {
-                        string attrName = ParseString(c);
+                        string attrName = ReadQuotedString(StreamReader, c);
                         currentAttr = new JsonProperty(attrName);
                     }
                     else if (char.IsLetterOrDigit(c))
                     {
                         StreamReader.Rewind();
-                        string attrName = ParseUnquotedString();
+                        string attrName = ReadUnquotedString(StreamReader);
                         currentAttr = new JsonProperty(attrName);
                     }
                     else
@@ -143,28 +122,32 @@ namespace JetNet
                     // ok, this set is different..
                     if (c == '"' || c == '\'' || c == '`')
                     {
-                        ProcessJsonValueString(currentAttr, c);
+                        string value = ReadQuotedString(StreamReader, c);
+                        currentAttr.Value = new JsonStringValue(value);
                     }
                     else if (c == '{')
                     {
-                        ProcessJsonValueObject(currentAttr);
+                        currentAttr.Value = ProcessJsonObject(StreamReader);
                     }
                     else if (c == '[')
                     {
-                        ProcessJsonValueArray(currentAttr);
+                        currentAttr.Value = ProcessJsonArray(StreamReader);
                     }
                     else if (char.IsLetterOrDigit(c))
                     {
                         StreamReader.Rewind();
-                        ProcessJsonValueRawString(currentAttr);
+                        string value = ReadUnquotedString(StreamReader);
+                        currentAttr.Value = JsonValue.BuildStringOrPrimitive(value);
                     }
                     current.Add(currentAttr);
                     currentAttr = null; // clear out
                 }
             }
+
+            return current;
         }
 
-        private string ParseString(char endingQuoteChar)
+        public static string ReadQuotedString(IJsonReader StreamReader, char endingQuoteChar)
         {
             bool isEscaping = false;
             StringBuilder sb = new StringBuilder();
@@ -182,7 +165,7 @@ namespace JetNet
             return sb.ToString();
         }
 
-        private string ParseUnquotedString()
+        public static string ReadUnquotedString(IJsonReader StreamReader)
         {
             bool isEscaping = false;
             StringBuilder sb = new StringBuilder();
@@ -191,54 +174,19 @@ namespace JetNet
                 if (c == '\\')
                     isEscaping = true;
                 else if (isEscaping)
+                {
                     sb.Append(c);
-                else if (c == ':' || c == ',' || char.IsWhiteSpace(c))
+                    isEscaping = false;
+                }
+                else if (char.IsLetterOrDigit(c) || c == '.') // . permitted, even multiple times
+                    sb.Append(c);
+                else
                 {
                     StreamReader.Rewind(); // "put the : back!"
                     break;
                 }
-                else
-                    sb.Append(c);
             }
             return sb.ToString();
-        }
-
-        private void ProcessJsonValueString(JsonProperty current, char endingQuoteChar)
-        {
-            bool isEscaping = false;
-            StringBuilder sb = new StringBuilder();
-            while (StreamReader.TryPopChar(out char c, false))
-            {
-                if (c == '\\')
-                    isEscaping = true;
-                else if (isEscaping)
-                    sb.Append(c);
-                else if (c == endingQuoteChar)
-                    break;
-                else
-                    sb.Append(c);
-            }
-            current.Value = new JsonStringValue(sb.ToString());
-        }
-
-        private void ProcessJsonValueRawString(JsonProperty currentAttr)
-        {
-            string value = ParseUnquotedString();
-            currentAttr.Value = JsonValue.BuildStringOrPrimitive(value);
-        }
-
-        private void ProcessJsonValueArray(JsonProperty parent)
-        {
-            JsonArray current = new JsonArray();
-            parent.Value = current;
-            ProcessJsonArray(current);
-        }
-
-        private void ProcessJsonValueObject(JsonProperty parent)
-        {
-            JsonObject current = new JsonObject();
-            parent.Value = current;
-            ProcessJsonObject(current);
         }
     }
 }

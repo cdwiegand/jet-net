@@ -25,26 +25,24 @@ namespace JetTests
 
             List<JsonObject> emittedObjects = new();
 
-            JsonParser parser = new JsonParser(sr);
-            parser.AddHandler(emittedObjects.Add);
+            var result = JsonParser.ProcessJson(sr, emittedObjects.Add);
             sw.Write(GenerateJsonFirstPart(1));
             sw.Flush();
             long oldPos = ms.Position;
             ms.Position = 0; // reset
-            var result = parser.ProcessJson();
             ms.Position = oldPos; // push back
-            Assert.IsTrue(emittedObjects.Count == 1); // but is partial
+            Assert.AreEqual(0, emittedObjects.Count); // object not completed...
 
             // finish json object..
             sw.Write(GenerateJsonFirstPart(1));
             sw.WriteLine(GenerateJsonSecondPart(1));
             sw.Flush();
             ms.Position = oldPos; // reset back
-            parser.ProcessJson();
+            result = JsonParser.ProcessJson(sr, emittedObjects.Add);
             // don't care about ms.Position so not pushing back in
-            Assert.IsTrue(emittedObjects.Count == 2);
+            Assert.IsTrue(emittedObjects.Count == 1);
 
-            ValidateJson(emittedObjects[1], 1); // 2nd is valid
+            ValidateJson(emittedObjects[0], 1); // is valid?
         }
 
         private void ValidateJson(JsonObject topLevelJo, int i)

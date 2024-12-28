@@ -18,7 +18,10 @@ namespace JetNet
             }
         }
 
-        public override string ToString() => ToString(JsonFormatOptions.Defaults);
+        public string? AsString(string key) => this[key]?.AsString()?.Value;
+
+        public bool ContainsKey(string key) => Items.Any(p => p.Name == key);
+
         public override string ToString(JsonFormatOptions format)
         {
             format ??= JsonFormatOptions.Defaults;
