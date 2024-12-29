@@ -24,10 +24,6 @@ jobs:
         run: dotnet test --configuration Release --no-build /p:Version=${VERSION}
       - name: Package
         run: dotnet pack --configuration Release --no-build /p:Version=${VERSION} --output .
-      - name: Publish to ghcr.io nuget repo
-        run: dotnet nuget push ./WiegandTech.JetNet.${VERSION}.nupkg --api-key $TOKEN --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to nuget.org
         run: dotnet nuget push ./WiegandTech.JetNet.${VERSION}.nupkg --api-key $TOKEN --source https://api.nuget.org/v3/index.json
         env:
