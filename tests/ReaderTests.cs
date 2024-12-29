@@ -6,46 +6,47 @@ namespace JetTests;
 public class ReaderTests
 {
 	[TestMethod]
-	public void JsonStreamReaderTest_Runs()
+	public void JsonStreamReader_MemoryStream_Runs()
 	{
 		MemoryStream ms = new MemoryStream();
 		using (StreamWriter sw = new StreamWriter(ms, leaveOpen: true))
 			sw.WriteLine(SimpleTests.HelloWorldJson);
 
 		ms.Seek(0, SeekOrigin.Begin);    // reset
-		JsonStreamReader sr = new JsonStreamReader(ms);
+		var sr = new JsonStreamReader(ms);
+
 		var result = JsonParser.ProcessJson(sr);
 		SimpleTests.Helper_ValidateHelloWorld(result);
 	}
 
 	[TestMethod]
-	public void JsonStreamReaderTest_Rewinds()
+	public void JsonStreamReader_MemoryStream_Rewinds()
 	{
 		MemoryStream ms = new MemoryStream();
 		using (StreamWriter sw = new StreamWriter(ms, leaveOpen: true))
 			sw.Write("\"hello\"");
 
 		ms.Seek(0, SeekOrigin.Begin);    // reset		
-		JsonStreamReader sr = new JsonStreamReader(ms);
+		var sr = new JsonStreamReader(ms);
 
 		Helper_RewindTest(sr);
 	}
 
 	[TestMethod]
-	public void JsonStreamReaderReaderTest_Rewinds()
+	public void JsonStreamReader_StreamReader_Rewinds()
 	{
 		MemoryStream ms = new MemoryStream();
 		using (StreamWriter sw = new StreamWriter(ms, leaveOpen: true))
 			sw.Write("\"hello\"");
 
 		ms.Seek(0, SeekOrigin.Begin);    // reset		
-		JsonStreamReaderReader sr = new JsonStreamReaderReader(new StreamReader(ms));
+		var sr = new JsonStreamReader(new StreamReader(ms));
 
 		Helper_RewindTest(sr);
 	}
 
 	[TestMethod]
-	public void JsonStringReaderTest_Rewinds()
+	public void JsonStringReader_String_Rewinds()
 	{
 		string s = "\"hello\"";
 
@@ -55,11 +56,11 @@ public class ReaderTests
 	}
 
 	[TestMethod]
-	public void JsonStringReaderReaderTest_Rewinds()
+	public void JsonStringReader_StringReader_Rewinds()
 	{
 		string s = "\"hello\"";
 
-		JsonStringReaderReader sr = new JsonStringReaderReader(new StringReader(s));
+		JsonStringReader sr = new JsonStringReader(new StringReader(s));
 
 		Helper_RewindTest(sr);
 	}

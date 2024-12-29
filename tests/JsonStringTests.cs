@@ -18,6 +18,8 @@ public class JsonStringTests
         Assert.AreEqual("\"true\"",opt.EscapeJsonString("true",false));
         Assert.AreEqual("\"hello\"",opt.EscapeJsonString("hello",true));
         Assert.AreEqual("\"he\\\"ll\\\"o\"",opt.EscapeJsonString("he\"ll\"o",true));
+
+        Assert.AreEqual("\"the \\\" east\"", opt.EscapeJsonString("the \" east",false));
     }
 
     [TestMethod]

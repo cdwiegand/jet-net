@@ -24,7 +24,7 @@ namespace JetNet
                 if (decimal.TryParse(raw, out _)) return raw; // FIXME: json spec how format numbers?
             }
             if (raw == null) return "null"; // this always gets returned as-is, even when quoting "non-null" values
-            return "\"" + (raw?.Replace("\\", "\\\\").Replace("\"", "\\\"") ?? "") + "\"";
+            return "\"" + (raw?.Replace("\\\"", "\"").Replace("\\", "\\\\").Replace("\"", "\\\"") ?? "") + "\"";
         }
 
         public static JsonFormatOptions Defaults => new JsonFormatOptions();

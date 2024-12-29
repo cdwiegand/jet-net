@@ -12,10 +12,10 @@ namespace JetNet
             => ProcessJson(new JsonStreamReader(stream), topLevelHandler);
 
         public static JsonParseResult ProcessJson(StreamReader stream, Action<JsonObject>? topLevelHandler = null)
-            => ProcessJson(new JsonStreamReaderReader(stream), topLevelHandler);
+            => ProcessJson(new JsonStreamReader(stream), topLevelHandler);
 
         public static JsonParseResult ProcessJson(StringReader stream, Action<JsonObject>? topLevelHandler = null)
-            => ProcessJson(new JsonStringReaderReader(stream), topLevelHandler);
+            => ProcessJson(new JsonStringReader(stream), topLevelHandler);
 
         public static JsonParseResult ProcessJson(IJsonReader StreamReader, Action<JsonObject>? topLevelHandler = null)
         {
@@ -84,7 +84,7 @@ namespace JetNet
 
         public static JsonObject ProcessJsonObject(IJsonReader StreamReader)
         {
-            JsonObject current = new ();
+            JsonObject current = new();
             JsonProperty? currentAttr = null;
 
             while (StreamReader.TryPopChar(out char c, true))
@@ -153,10 +153,13 @@ namespace JetNet
             StringBuilder sb = new StringBuilder();
             while (StreamReader.TryPopChar(out char c, false))
             {
-                if (c == '\\')
-                    isEscaping = true;
-                else if (isEscaping)
+                if (isEscaping)
+                {
                     sb.Append(c);
+                    isEscaping = false;
+                }
+                else if (c == '\\')
+                    isEscaping = true;
                 else if (c == endingQuoteChar)
                     break;
                 else
@@ -171,13 +174,13 @@ namespace JetNet
             StringBuilder sb = new StringBuilder();
             while (StreamReader.TryPopChar(out char c, false))
             {
-                if (c == '\\')
-                    isEscaping = true;
-                else if (isEscaping)
+                if (isEscaping)
                 {
                     sb.Append(c);
                     isEscaping = false;
                 }
+                else if (c == '\\')
+                    isEscaping = true;
                 else if (char.IsLetterOrDigit(c) || c == '.') // . permitted, even multiple times
                     sb.Append(c);
                 else

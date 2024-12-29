@@ -5,12 +5,12 @@ namespace JetTests;
 [TestClass]
 public class RootArrayTests
 {
-    const string TestRootArrayJson = "[{ \"hello\": \"world\" }, { \"goodbye\": \"drama\", stay: [\"sunshine\", clou7ds, 'the `east\" wind', `water with spaces`], success: true }]";
-    const string TestRootMultipleObjectsJson = "{ \"hello\": \"world\" }\n{ \"goodbye\": \"drama\", stay: [\"sunshine\", clou7ds, 'the `east\" wind', `water with spaces`], success: true }";
-    const string CorrectRootArrayJson_Defaults = "[{\"hello\":\"world\"},{\"goodbye\":\"drama\",\"stay\":[\"sunshine\",\"clou7ds\",\"the `east\\\" wind\",\"water with spaces\"],\"success\":true}]";
-    const string CorrectRootArrayJson_QuoteRaw = "[{\"hello\":\"world\"},{\"goodbye\":\"drama\",\"stay\":[\"sunshine\",\"clou7ds\",\"the `east\\\" wind\",\"water with spaces\"],\"success\":\"true\"}]";
-    const string CorrectRootArrayJson_DelimSpace = "[ { \"hello\": \"world\" }, { \"goodbye\": \"drama\", \"stay\": [ \"sunshine\", \"clou7ds\", \"the `east\\\" wind\", \"water with spaces\" ], \"success\": true } ]";
-    const string CorrectRootArrayJson_QuoteRaw_DelimSpace = "[ { \"hello\": \"world\" }, { \"goodbye\": \"drama\", \"stay\": [ \"sunshine\", \"clou7ds\", \"the `east\\\" wind\", \"water with spaces\" ], \"success\": \"true\" } ]";
+    public const string TestRootArrayJson = "[{ \"hello\": \"world\" }, { \"goodbye\": \"drama\", stay: [\"sunshine\", clou7ds, 'the `east\" wind', `water with spaces`], success: true }]";
+    public const string TestRootMultipleObjectsJson = "{ \"hello\": \"world\" }\n{ \"goodbye\": \"drama\", stay: [\"sunshine\", clou7ds, 'the `east\" wind', `water with spaces`], success: true }";
+    public const string CorrectRootArrayJson_Defaults = "[{\"hello\":\"world\"},{\"goodbye\":\"drama\",\"stay\":[\"sunshine\",\"clou7ds\",\"the `east\\\" wind\",\"water with spaces\"],\"success\":true}]";
+    public const string CorrectRootArrayJson_QuoteRaw = "[{\"hello\":\"world\"},{\"goodbye\":\"drama\",\"stay\":[\"sunshine\",\"clou7ds\",\"the `east\\\" wind\",\"water with spaces\"],\"success\":\"true\"}]";
+    public const string CorrectRootArrayJson_DelimSpace = "[ { \"hello\": \"world\" }, { \"goodbye\": \"drama\", \"stay\": [ \"sunshine\", \"clou7ds\", \"the `east\\\" wind\", \"water with spaces\" ], \"success\": true } ]";
+    public const string CorrectRootArrayJson_QuoteRaw_DelimSpace = "[ { \"hello\": \"world\" }, { \"goodbye\": \"drama\", \"stay\": [ \"sunshine\", \"clou7ds\", \"the `east\\\" wind\", \"water with spaces\" ], \"success\": \"true\" } ]";
 
     [TestMethod]
     public void TestRootArray()
@@ -29,6 +29,15 @@ public class RootArrayTests
         Assert.IsNotNull(jarr);
 
         Helper_Array(jarr);
+
+        // now, render back to json, then re-parse, and re-validate
+        string json = result.ToString();
+        result = JsonParser.ProcessJson(json);
+
+        jarr = result.First().AsArray();
+        Assert.IsNotNull(jarr);
+        Helper_Array(jarr);
+        Assert.AreEqual(json, result.ToString());
     }
 
     [TestMethod]
@@ -44,13 +53,24 @@ public class RootArrayTests
         Assert.AreEqual(CorrectRootArrayJson_QuoteRaw_DelimSpace, result.ToString(JsonFormatOptions.Defaults.SetAlwaysQuoteRawNonNullValues().SetAddSpacesAroundDelimiters()));
 
         Helper_Array(result);
+
+        // now, render back to json, then re-parse, and re-validate
+        string json = result.ToString();
+        result = JsonParser.ProcessJson(json);
+
+        Assert.IsNotNull(result);
+        Helper_Array(result.First().AsArray()); 
+        // we test differently here because the original was two newline-separated objects, 
+        // but the result is an array (normalizing it)
+        Assert.AreEqual(json, result.ToString());
     }
 
-    private void Helper_Array(IList<JsonValue> jarr)
+    private void Helper_Array(IList<JsonValue>? jarr)
     {
+        Assert.IsNotNull(jarr);
         Assert.AreEqual(2, jarr.Count);
 
-        JsonObject? topLevelJo = jarr[0]!.AsObject();
+        JsonObject? topLevelJo = jarr[0].AsObject();
         Assert.IsNotNull(topLevelJo);
         Assert.AreEqual(1, topLevelJo.Items.Count);
         JsonProperty topLevelFirstChild = topLevelJo.Items[0] ?? throw new InvalidCastException();

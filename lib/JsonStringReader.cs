@@ -2,54 +2,46 @@ namespace JetNet
 {
     public class JsonStringReader : IJsonReader
     {
-        public JsonStringReader(string json)
+        public JsonStringReader(string s) : this(new StringReader(s))
         {
-            OrigString = json;
+        }
+        public JsonStringReader(StringReader s)
+        {
+            Stream = s;
         }
 
         public int NextIndex { get; private set; }
         public int CurrentIndex => NextIndex - 1;
+        private char? RewoundChar;
+        private char? LastChar;
 
-        public string OrigString { get; private set; }
-
-        public override string ToString() => Context;
-
-        public void Append(string json)
-        {
-            OrigString += json;
-        }
-
-        public string Context =>
-            $"Index: {NextIndex - 1}\n" +
-            $"Before: {PeekAround(20, 0)}\n" +
-            $"After: {PeekAround(0, 20)}";
-
-        private string? PeekAround(int beforeIndex, int? afterIndex = null)
-        {
-            if (beforeIndex < 0) beforeIndex = -beforeIndex;
-            if ((afterIndex ?? 0) < 0) afterIndex = -afterIndex;
-            int start = NextIndex - beforeIndex;
-            int end = NextIndex + (afterIndex ?? beforeIndex);
-            if (start < 0) start = 0;
-            if (end >= OrigString.Length) end = OrigString.Length - 1;
-            return OrigString.Substring(start, end - start + 1);
-        }
+        private StringReader Stream { get; set; }
 
         public bool TryPopChar(out char c, bool consumeWhitespace)
         {
             c = '\0';
             do
             {
-                if (NextIndex >= OrigString.Length) return false;
-                c = OrigString[NextIndex];
-                NextIndex++;
+                if (RewoundChar != null)
+                {
+                    c = RewoundChar.Value;
+                    RewoundChar = null; // used up
+                }
+                else
+                {
+                    char[] chars = new char[1];
+                    if (Stream.Peek() == -1) return false;
+                    Stream.Read(chars, 0, 1);
+                    NextIndex++;
+                    LastChar = c = chars[0];
+                }
             } while (consumeWhitespace && char.IsWhiteSpace(c));
             return true;
         }
 
         public void Rewind()
         {
-            NextIndex--;
+            RewoundChar = LastChar; // can't go back more than one..
         }
     }
 }
