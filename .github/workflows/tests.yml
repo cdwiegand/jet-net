@@ -1,6 +1,12 @@
 name: Tests
 
-on: [ push ]
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
 
 jobs:
   tests:
@@ -14,6 +20,6 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build
-      - name: Test with the dotnet CLI
+        run: dotnet build tests/JetTests.csproj
+      - name: Test
         run: dotnet test

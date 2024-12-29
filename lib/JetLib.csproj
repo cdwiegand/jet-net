@@ -4,5 +4,14 @@
     <RootNamespace>JetNet</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <PackageId>WiegandTech.JetNet</PackageId>
+    <PackageProjectUrl>https://github.com/cdwiegand/jetnet</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/cdwiegand/jetnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.5</Version>
+    <Authors>Chris Wiegand</Authors>
+    <Title>JetNet Json Parser</Title>
+    <Description>A permissive JSON parser meant for parsing JSON that may not be spec-compliant, or reading streams of objects that aren't in arrays but may be line delimited.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 </Project>
